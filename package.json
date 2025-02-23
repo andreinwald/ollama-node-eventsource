@@ -1,6 +1,12 @@
 {
   "type": "module",
+  "scripts": {
+    "start": "concurrently \"node backend_server.js\" \"npx http-server public\""
+  },
   "dependencies": {
     "ollama": "^0.5.13"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

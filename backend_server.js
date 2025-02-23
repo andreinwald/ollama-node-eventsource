@@ -1,14 +1,9 @@
-const http = require('node:http');
-const url = require('url');
+import http from 'node:http';
+import url from 'url';
 import ollama from 'ollama'
 
-const message = {role: 'user', content: 'Why is the sky blue?'}
-const response = await ollama.chat(
-    {model: 'deepseek-r1:32b', messages: [message], stream: true}
-)
-for await (const part of response) {
-    process.stdout.write(part.message.content)
-}
+const model = 'llama3.2:1b';
+await ollama.pull({model});
 
 function handleRequest(request, response) {
     let parsedUrl = url.parse(request.url)
@@ -28,11 +23,9 @@ function handleRequest(request, response) {
     }
 }
 
-let responseStream;
-
 function routeMessage(request, response) {
-    responseStream.write(`test`);
-    response.end();
+    // responseStream.write(`test`);
+    // response.end();
 }
 
 function routeResponseStream(request, response) {
@@ -41,7 +34,17 @@ function routeResponseStream(request, response) {
     response.setHeader("Cache-Control", "no-cache");
     response.setHeader("connection", "keep-alive");
     response.setHeader("Content-Type", "text/event-stream");
-    responseStream = response;
+    chat('Why is the sky blue?', response);
+}
+
+async function chat(question, responseStream) {
+    const message = {role: 'user', content: question}
+    const response = await ollama.chat(
+        {model, messages: [message], stream: true}
+    )
+    for await (const part of response) {
+        responseStream.write('data: ' + part.message.content + '\n\n');
+    }
 }
 
 http.createServer(handleRequest)

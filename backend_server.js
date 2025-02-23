@@ -1,51 +1,36 @@
-import http from 'node:http';
-import url from 'url';
 import ollama from 'ollama'
+import Express, {json} from 'express';
+import cors from 'cors';
 
 const model = 'llama3.2:1b';
 await ollama.pull({model});
 
-function handleRequest(request, response) {
-    let parsedUrl = url.parse(request.url)
-    switch (parsedUrl.pathname) {
-        case '/send_message': {
-            routeMessage(request, response);
-            break;
-        }
-        case '/response_stream': {
-            routeResponseStream(request, response);
-            break;
-        }
-        default: {
-            response.statusCode = 404;
-            response.end();
-        }
-    }
-}
+const app = Express();
+app.use(cors());
+app.use(json());
 
-function routeMessage(request, response) {
-    // responseStream.write(`test`);
-    // response.end();
-}
+let streamResponse;
 
-function routeResponseStream(request, response) {
-    response.statusCode = 200;
-    response.setHeader("Access-Control-Allow-Origin", "*");
+app.get('/response_stream', async (request, response) => {
     response.setHeader("Cache-Control", "no-cache");
     response.setHeader("connection", "keep-alive");
     response.setHeader("Content-Type", "text/event-stream");
-    chat('Why is the sky blue?', response);
-}
+    streamResponse = response;
+});
 
-async function chat(question, responseStream) {
+app.post('/send_message', async (request, response) => {
+    response.end();
+    ollama.abort();
+    const question = request.body.message;
     const message = {role: 'user', content: question}
-    const response = await ollama.chat(
+    const chatResponse = await ollama.chat(
         {model, messages: [message], stream: true}
     )
-    for await (const part of response) {
-        responseStream.write('data: ' + part.message.content + '\n\n');
+    for await (const part of chatResponse) {
+        streamResponse.write('data: ' + part.message.content + '\n\n');
     }
-}
+});
 
-http.createServer(handleRequest)
-    .listen(3000, '127.0.0.1', () => console.log('Listening 127.0.0.1:3000'));
+app.listen(3000, () => {
+    console.log('Listening 127.0.0.1:3000');
+})

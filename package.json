@@ -4,6 +4,8 @@
     "start": "concurrently \"node backend_server.js\" \"npx http-server public\""
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.0",
     "ollama": "^0.5.13"
   },
   "devDependencies": {

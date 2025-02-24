@@ -9,7 +9,12 @@ const app = Express();
 app.use(cors());
 app.use(json());
 
+/** @type Response */
 let streamResponse;
+
+function writeToStream(message) {
+    streamResponse.write(`data: ${message}\n\n`);
+}
 
 app.get('/response_stream', async (request, response) => {
     response.setHeader("Cache-Control", "no-cache");
@@ -21,13 +26,17 @@ app.get('/response_stream', async (request, response) => {
 app.post('/send_message', async (request, response) => {
     response.end();
     ollama.abort();
-    const question = request.body.message;
-    const message = {role: 'user', content: question}
-    const chatResponse = await ollama.chat(
-        {model, messages: [message], stream: true}
-    )
+    const question = String(request.body.message);
+    if (question.length < 3) {
+        writeToStream('question is empty');
+    }
+
+    const chatRequest = {
+        model, messages: [{role: 'user', content: question}], stream: true,
+    };
+    const chatResponse = await ollama.chat(chatRequest)
     for await (const part of chatResponse) {
-        streamResponse.write('data: ' + part.message.content + '\n\n');
+        writeToStream(part.message.content);
     }
 });
 

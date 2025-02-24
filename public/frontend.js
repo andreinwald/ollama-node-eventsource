@@ -12,9 +12,10 @@ connection.onerror = (event) => {
     connection.close();
 }
 
-document.getElementById("send").onclick = () => {
+document.getElementById("messageForm").onsubmit = (event) => {
+    event.preventDefault();
     contentElement.innerHTML = '';
-    let message = document.getElementById("query").value;
+    let message = document.getElementById("message").value;
     fetch(API_HOST + `/send_message`, {
         method: 'POST',
         headers: {
@@ -27,4 +28,7 @@ document.getElementById("send").onclick = () => {
     });
 };
 
+document.getElementById('stop').onclick = () => {
+    fetch(API_HOST + `/stop`);
+};
 

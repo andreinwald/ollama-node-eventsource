@@ -40,6 +40,10 @@ app.post('/send_message', async (request, response) => {
     }
 });
 
+app.get('/stop', async (request, response) => {
+    ollama.abort();
+});
+
 app.listen(3000, () => {
     console.log('Listening 127.0.0.1:3000');
 })

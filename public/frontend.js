@@ -14,8 +14,8 @@ connection.onerror = (event) => {
 
 document.getElementById("messageForm").onsubmit = (event) => {
     event.preventDefault();
-    contentElement.innerHTML = '';
     let message = document.getElementById("message").value;
+    contentElement.innerHTML += `<br><hr><b>${message}</b><br>`;
     fetch(API_HOST + `/send_message`, {
         method: 'POST',
         headers: {

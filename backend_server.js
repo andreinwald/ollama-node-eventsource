@@ -12,7 +12,9 @@ app.use(json());
 /** @type Response */
 let streamResponse;
 
-function writeToStream(message) {
+let messages = [];
+
+function writeToEventSource(message) {
     streamResponse.write(`data: ${message}\n\n`);
 }
 
@@ -28,20 +30,24 @@ app.post('/send_message', async (request, response) => {
     ollama.abort();
     const question = String(request.body.message);
     if (question.length < 3) {
-        writeToStream('question is empty');
+        writeToEventSource('question is empty');
     }
-
+    messages.push({role: 'user', content: question});
     const chatRequest = {
-        model, messages: [{role: 'user', content: question}], stream: true,
+        model, messages, stream: true,
     };
-    const chatResponse = await ollama.chat(chatRequest)
+    const chatResponse = await ollama.chat(chatRequest);
+    const savedResponse = {role: 'assistant', content: ''};
+    messages.push(savedResponse);
     for await (const part of chatResponse) {
-        writeToStream(part.message.content);
+        savedResponse.content += part.message.content;
+        writeToEventSource(part.message.content);
     }
 });
 
 app.get('/stop', async (request, response) => {
     ollama.abort();
+    response.end();
 });
 
 app.listen(3000, () => {

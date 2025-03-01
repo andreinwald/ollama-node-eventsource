@@ -1,16 +1,45 @@
 <html>
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
     <style>
+        html,body {
+            background: #fefefe;
+        }
 
+        .wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            font-family: sans-serif;
+            padding: 20px 30px;
+            min-height: 100vh;
+            background-color: #fff;
+        }
+
+        #content {
+            min-height: 400px;
+        }
+        .question {
+            margin: 30px 0 20px 50%;
+            background-color: #e5e5e5;
+            padding: 10px;
+            border-radius: 20px;
+        }
+        #messageForm {
+            padding-left: 50%;
+        }
+        #messageForm input {width: 100%}
     </style>
 </head>
 <body>
-<form id="messageForm">
-    <input id="message">
-    <button type="submit">Send</button>
-</form>
-<button id="stop">Stop</button>
-<div id="content"></div>
+<div class="wrapper">
+    <div id="content">
+    </div>
+    <form id="messageForm">
+        <input id="questionInput">
+        <button type="submit">Send</button>
+        <span class="button error" id="stop">Stop</span>
+    </form>
+</div>
 <script src="frontend.js"></script>
 </body>
 </html>

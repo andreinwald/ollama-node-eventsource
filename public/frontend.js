@@ -12,10 +12,13 @@ connection.onerror = (event) => {
     connection.close();
 }
 
+const questionInput = document.getElementById("questionInput");
+
 document.getElementById("messageForm").onsubmit = (event) => {
     event.preventDefault();
-    let message = document.getElementById("message").value;
-    contentElement.innerHTML += `<br><hr><b>${message}</b><br>`;
+    let message = questionInput.value;
+    questionInput.value = '';
+    contentElement.innerHTML += `<div class="question">${message}</div>`;
     fetch(API_HOST + `/send_message`, {
         method: 'POST',
         headers: {

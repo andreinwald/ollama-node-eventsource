@@ -1,9 +1,21 @@
 const API_HOST = 'http://127.0.0.1:3000';
 
-let userId = Math.round(Math.random() * 1000);
+function getUserToken() {
+    let token = localStorage.getItem('user_token');
+    if (token) {
+        return token;
+    }
+    // better implement your own authorization, e.g. via JWT
+    token = crypto.getRandomValues(new Uint32Array(8)).join('')
+    localStorage.setItem('user_token', token);
+    return token;
+}
+
+const userToken = getUserToken();
+
 let contentElement = document.getElementById("content");
 
-let connection = new EventSource(API_HOST + `/response_stream?user_id=${userId}`);
+let connection = new EventSource(`${API_HOST}/response_stream?user_token=${userToken}`);
 connection.onmessage = (event) => {
     contentElement.innerHTML += event.data;
 };
@@ -25,13 +37,13 @@ document.getElementById("messageForm").onsubmit = (event) => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            userId,
+            userToken,
             message,
         }),
     });
 };
 
 document.getElementById('stop').onclick = () => {
-    fetch(API_HOST + `/stop`);
+    fetch(`${API_HOST}/stop`);
 };
 
